@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      lang="it_IT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="../CSS/homeStyle.css" th:href="@{/CSS/homeStyle.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-title">Gallery Manager</div>
+    <button class="logout-button"><a href="./logout">Logout</a></button>
+</nav>
+<div class="content">
+    <h1 style="margin-bottom: 1.5rem;">Welcome to the Gallery Manager</h1>
+    <div id="userAlbums" class="list-container">
+        <h2>Your Albums</h2>
+        <div th:if="${userAlbums.size()} > 0">
+            <div class="list-item">
+                <div class="item-header">
+                    Title
+                </div>
+                <div class="item-header">
+                    Creation Date
+                </div>
+            </div>
+            <div class="list-item" th:each="album : ${userAlbums}">
+                <div class="item-title">
+                    <a th:href="'./album?albumId='+${album.id}" th:text="${album.title}"></a>
+                </div>
+                <div class="item-date" th:text="${album.creationDate}"></div>
+            </div>
+        </div>
+    </div>
+    <div id="otherAlbums" class="list-container">
+        <h2>Shared albums</h2>
+        <div th:if="${userAlbums.size()} > 0">
+            <div class="list-item">
+                <div class="item-header">
+                    Title
+                </div>
+                <div class="item-header">
+                    Author
+                </div>
+                <div class="item-header">
+                    Creation Date
+                </div>
+            </div>
+            <div class="list-item" th:each="album : ${sharedAlbums}">
+                <div class="item-title">
+                    <a th:href="'./album?albumId='+${album.id}" th:text="${album.title}"></a>
+                </div>
+                <div class="item-author" th:text="${album.authorUsername}"></div>
+                <div class="item-date" th:text="${album.creationDate}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="upload-create-container">
+    <div class="upload-container" id="uploadContainer">
+        <div class="container-header">
+            <h2 class="container-title">Upload an Image</h2>
+            <div class="error-message" id="uploadImageErrorMessage"></div>
+        </div>
+        <div class="error-message" id="imageUploadError" th:text="${uploadImageError}"></div>
+        <form id="image_upload" action="./image" method="post" enctype="multipart/form-data">
+            <div class="input-group">
+                <label for="title">Image Title</label>
+                <input type="text" id="title" name="imageTitle">
+            </div>
+            <div class="input-group">
+                <label for="image">Select Image</label>
+                <input type="file" id="image" name="image" accept=".jpg, .jpeg" required>
+            </div>
+            <button type="submit" id="uploadImageButton">Upload</button>
+        </form>
+    </div>
+    <div class="gallery-container" id="galleryContainer">
+        <div class="container-header">
+            <h2 class="container-title">Create Album</h2>
+            <div class="error-message" id="createAlbumErrorMessage"></div>
+        </div>
+        <form id="createAlbumForm" action="./album" method="post">
+            <div class="error-message" id="createAlbumImagesErrorMessage"></div>
+            <div class="input-group">
+                <label for="gallery_title">Album Title</label>
+                <input type="text" id="gallery_title" name="albumTitle" required>
+            </div>
+            <div class="input-group">
+                <label>Choose Images:</label>
+                <ul class="checkbox-list" id="imageCheckboxList">
+                    <li th:each="image, index : ${userImageList}">
+                        <input type="checkbox" th:name="'image-'+(${index}+1)" th:value="${image.id}"
+                               th:id="'image-'+(${index}+1)">
+                        <span>
+                            <label th:for="'image-'+(${index}+1)">
+                                <img th:src="${image.base64Image}" th:alt="${image.title}"/>
+                            </label>
+                            <p th:text="${image.title}"></p>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            <button id="createGalleryButton" type="submit">Create Album</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

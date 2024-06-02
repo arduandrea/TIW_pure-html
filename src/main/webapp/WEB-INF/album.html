@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Album Page</title>
+  <link rel="stylesheet" href="../CSS/albumStyle.css" th:href="@{/CSS/albumStyle.css}">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-title" >Gallery Manager</div>
+  <div class="navbar-links" id="navBar">
+    <a href="./home">Home</a>
+  </div>
+  <button class="logout-button"><a href="./logout">Logout</a></button>
+</nav>
+<div class="content">
+  <div class="album-container">
+    <h2 id="albumTitle" th:text="${albumTitle}"></h2>
+    <h3 th:if="${emptyAlbum}">The following album is empty</h3>
+    <table class="album-table" th:if="!${emptyAlbum}">
+      <tr id="currentPageRow">
+        <td th:each="image : ${images}">
+          <a th:href="'./image?imageId='+${image.id}+'&albumId='+${albumId}">
+            <img th:src="${image.base64Image}" th:alt="${image.id}"/>
+          </a>
+        </td>
+      </tr>
+    </table>
+    <div class="album-buttons" th:if="!${emptyAlbum}">
+      <button class="prev-button" id="previous" th:if="${currentPageNumber} != 0">
+        <a th:href="'./album?albumId='+${albumId}+'&albumPage='+(${currentPageNumber}-1)">Previous</a>
+      </button>
+      <button class="next-button" id="next" th:if="${currentPageNumber} +1 < ${numberOfPages}">
+        <a th:href="'./album?albumId='+${albumId}+'&albumPage='+(${currentPageNumber}+1)">Next</a>
+      </button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

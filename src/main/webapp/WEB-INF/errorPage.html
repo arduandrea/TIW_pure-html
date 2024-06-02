@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      lang="it_IT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="../CSS/homeStyle.css" th:href="@{/CSS/homeStyle.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-title">Gallery Manager</div>
+    <button class="logout-button" th:if="${errorMessage}"><a href="./logout">Logout</a></button>
+</nav>
+<div class="content" th:if="${errorMessage}">
+    <h1 style="margin-bottom: 1.5rem;" th:text="${errorMessage}"></h1>
+    <a th:href="'./home'">Go to the homePage</a>
+</div>
+<div class="content" th:if="${errorNotLoggedIn}">
+    <h1 style="margin-bottom: 1.5rem;" th:text="${errorNotLoggedIn}"></h1>
+    <a th:href="'./'">Login and Signup</a>
+</div>
+</body>
+</html>

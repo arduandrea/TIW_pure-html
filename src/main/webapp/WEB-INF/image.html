@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Page</title>
+    <link rel="stylesheet" href="../CSS/imageStyle.css" th:href="@{/CSS/imageStyle.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-title" >Gallery Manager</div>
+    <div class="navbar-links" id="navBar">
+        <a href="./home">Home</a>
+        <a th:if="${albumId}" th:href="'./album?albumId='+${albumId}">Album</a>
+    </div>
+    <button class="logout-button" onclick="window.location.href='./logout'">Logout</button>
+</nav>
+<div class="content">
+    <div id="imageContainer">
+        <h2 id="imageTitle">Image Title</h2>
+        <img th:src="${image.base64Image}" th:alt="${image.title}">
+        <form action="delete-image" method="post" th:if="${image.authorId == userId}">
+            <input class="hidden" type="text" th:value="${image.id}" name="imageId">
+            <button class="delete-button" type="submit">
+                Delete image and comments
+            </button>
+        </form>
+    </div>
+    <div id="commentContainer">
+        <h2>Comments</h2>
+        <ul class="comment-list" id="commentList">
+            <li th:each="comment : ${commentList}" class="comment-item">
+                <div class="comment-author" th:text="${comment.authorUsername}">
+                </div>
+                <div class="commentDate" th:text="${comment.commentDate}">
+                </div>
+                <div class="comment-text" th:text="${comment.commentText}"></div>
+            </li>
+        </ul>
+        <form id="commentForm" th:action="'./comment?imageId='+${image.id}" method="post">
+            <div class="input-group">
+                <label for="commentText">Add a Comment</label>
+                <textarea id="commentText" name="commentText" required></textarea>
+            </div>
+            <button type="submit" id="postCommentButton">Publish Comment</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      lang="it_IT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="CSS/loginSignUpStyle.css">
+</head>
+<body>
+<div class="container">
+    <form action="./login" method="post" id="loginForm">
+        <div class="login-container" id="loginContainer">
+            <h2>Login</h2>
+            <div class="signup-link">
+                Don't you have an account? <a href="./signup.html">Signup</a>
+            </div>
+            <div class="error-message" id="loginErrorMessage" th:text="${errorMessage}"></div>
+            <div class="input-group">
+                <label for="loginUsername">Username</label>
+                <input type="text" id="loginUsername" name="loginUsername" required>
+            </div>
+            <div class="input-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" name="loginPassword" required>
+            </div>
+            <button id="submitLoginButton" type="submit" value="login">Login</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
