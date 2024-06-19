@@ -4,11 +4,10 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import org.tiw.tiw_purehtml.beans.Album;
 import org.tiw.tiw_purehtml.beans.Image;
+import org.tiw.tiw_purehtml.beans.Page;
 import org.tiw.tiw_purehtml.beans.User;
 import org.tiw.tiw_purehtml.dao.AlbumDAO;
-import org.tiw.tiw_purehtml.exceptions.AlbumNotCreatedException;
 import org.tiw.tiw_purehtml.utils.ConnectionHandler;
-
 import javax.servlet.ServletContext;
 import javax.servlet.UnavailableException;
 import javax.servlet.annotation.MultipartConfig;
@@ -37,8 +36,8 @@ public class AlbumPage extends HttpServlet {
 
     @Override
     public void init() throws UnavailableException {
-        connection = ConnectionHandler.getConnection(getServletContext());
         templateEngine = ConnectionHandler.getTemplateEngine(getServletContext());
+        connection = ConnectionHandler.getConnection(getServletContext());
     }
 
     @Override
@@ -57,41 +56,31 @@ public class AlbumPage extends HttpServlet {
         int albumId;
         try {
             albumId = Integer.parseInt(req.getParameter("albumId"));
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             ctx.setVariable("errorMessage", "ImageId must be a number and not null");
             templateEngine.process(path, ctx, resp.getWriter());
             return;
         }
 
         AlbumDAO albumDAO = new AlbumDAO(connection);
-        String albumExists = "";
+
+        Album album;
         try {
-            albumExists = albumDAO.albumExists(albumId);
-        } catch (SQLException e) {
+            album = albumDAO.getAlbumById(albumId);
+        } catch (IOException | SQLException e) {
             ctx.setVariable("errorMessage", "Error while retrieving the album");
             templateEngine.process(path, ctx, resp.getWriter());
             return;
         }
 
-        if (albumExists == null){
-            ctx.setVariable("errorMessage", "Album does not exist");
-            templateEngine.process(path, ctx, resp.getWriter());
-            return;
-        }
-
-        Album album = null;
-        try {
-            album = albumDAO.getAlbumById(albumId);
-        } catch (SQLException e) {
-            ctx.setVariable("errorMessage", "Error while retrieving the album from the db");
+        if(album.title == null) {
+            ctx.setVariable("errorMessage", "The requested album was empty, hence it has been deleted");
             templateEngine.process(path, ctx, resp.getWriter());
             return;
         }
 
         if (album == null) {
-            ctx.setVariable("emptyAlbum", true);
-            ctx.setVariable("albumTitle", albumExists);
-            path = "/album";
+            ctx.setVariable("errorMessage", "Album does not exist or is empty");
             templateEngine.process(path, ctx, resp.getWriter());
             return;
         }
@@ -117,15 +106,21 @@ public class AlbumPage extends HttpServlet {
         }
 
         path = "/album";
-        ctx.setVariable("numberOfPages", numberOfPages);
-        ctx.setVariable("albumTitle", album.title);
-        ctx.setVariable("albumId", album.id);
+//        ctx.setVariable("numberOfPages", numberOfPages);
+//        ctx.setVariable("albumTitle", album.title);
+//        ctx.setVariable("albumId", album.id);
         List<Image> images = new ArrayList<>();
         for (int i = pageNumber*5; i < album.imageList.size() && i < pageNumber*5 + 5; i++) {
             images.add(album.imageList.get(i));
         }
-        ctx.setVariable("images", images);
-        ctx.setVariable("currentPageNumber", pageNumber);
+        for (int i = images.size(); i < 5; i++) {
+            images.add(null);
+        }
+//        ctx.setVariable("images", images);
+//        ctx.setVariable("currentPageNumber", pageNumber);
+        Page albumPage = new Page(
+                album.id,album.title,album.authorId,images,numberOfPages, pageNumber);
+        ctx.setVariable("albumPage", albumPage);
         templateEngine.process(path, ctx, resp.getWriter());
     }
 
@@ -155,9 +150,14 @@ public class AlbumPage extends HttpServlet {
         List<String> imageParams = req.getParameterMap().keySet().stream()
                 .filter(key -> key.contains("image")).collect(Collectors.toList());
 
-        List<Integer> imageIds =
-                imageParams.stream().map(
-                        imageId -> Integer.parseInt(req.getParameter(imageId))).collect(Collectors.toList());
+        List<Integer> imageIds = new ArrayList<>();
+        try {
+        imageIds = imageParams.stream().map(
+                imageId -> Integer.parseInt(req.getParameter(imageId))).collect(Collectors.toList());
+        } catch (NumberFormatException e) {
+            ctx.setVariable("errorMessage", "ImageId must be a number and not null");
+            templateEngine.process(path, ctx, resp.getWriter());
+        }
 
         if (imageIds.isEmpty()){
             ctx.setVariable("errorMessage", "An album must contain at least one image");
@@ -169,7 +169,7 @@ public class AlbumPage extends HttpServlet {
         String creationDateTime;
         try {
             creationDateTime = albumDAO.createAlbum(loggedUser.getId(), albumTitle, imageIds);
-        } catch (SQLException | AlbumNotCreatedException e) {
+        } catch (SQLException e) {
             ctx.setVariable("errorMessage", "Error while creating the album");
             templateEngine.process(path, ctx, resp.getWriter());
             return;
@@ -190,5 +190,14 @@ public class AlbumPage extends HttpServlet {
             return;
         }
         resp.sendRedirect("./album?albumId="+albumId);
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            ConnectionHandler.closeConnection(connection);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

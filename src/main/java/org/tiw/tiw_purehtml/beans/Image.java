@@ -3,6 +3,7 @@ package org.tiw.tiw_purehtml.beans;
 import org.tiw.tiw_purehtml.dao.ImageDAO;
 
 import java.sql.Date;
+import java.util.List;
 
 public class Image {
 
@@ -11,6 +12,8 @@ public class Image {
     public String title;
     public Date creationDate;
     public String base64Image;
+    public String fileName;
+    public List<Comment> commentList;
 
     public int getId() {
         return id;
@@ -26,6 +29,14 @@ public class Image {
 
     public Date getCreationDate() {
         return creationDate;
+    }
+
+    public String getFileName() {
+        return this.fileName;
+    }
+
+    public List<Comment> getComments(){
+        return this.commentList;
     }
 
     public void setId(int id) {
@@ -44,11 +55,15 @@ public class Image {
         this.creationDate = creationDate;
     }
 
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
     public void setBase64Image(String image) {
         this.base64Image ="data:image/png;base64,"+ image;
     }
 
-    public String getFileName() {
-        return  ImageDAO.findCorrectPathFromResources("") + "/" + this.title + "_" + this.authorId  + "_" + this.creationDate.getTime() + ".jpg";
+    public void setCommentList(List<Comment> commentList){
+        this.commentList = commentList;
     }
 }

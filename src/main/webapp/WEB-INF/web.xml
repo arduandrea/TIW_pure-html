@@ -29,9 +29,7 @@
         <url-pattern>/Logout</url-pattern>
         <url-pattern>/home.html</url-pattern>
         <url-pattern>/image</url-pattern>
-        <url-pattern>/image.html</url-pattern>
         <url-pattern>/album</url-pattern>
-        <url-pattern>/album-page.html</url-pattern>
         <url-pattern>/delete-image</url-pattern>
         <url-pattern>/user-images</url-pattern>
     </filter-mapping>

@@ -32,10 +32,11 @@
                 <div class="item-date" th:text="${album.creationDate}"></div>
             </div>
         </div>
+        <p th:if="${userAlbums.size()} == 0">No albums created yet</p>
     </div>
     <div id="otherAlbums" class="list-container">
         <h2>Shared albums</h2>
-        <div th:if="${userAlbums.size()} > 0">
+        <div th:if="${sharedAlbums.size()} > 0">
             <div class="list-item">
                 <div class="item-header">
                     Title
@@ -55,6 +56,7 @@
                 <div class="item-date" th:text="${album.creationDate}"></div>
             </div>
         </div>
+        <p th:if="${sharedAlbums.size()} == 0">No albums shared yet</p>
     </div>
 </div>
 <div class="upload-create-container">
@@ -81,7 +83,7 @@
             <h2 class="container-title">Create Album</h2>
             <div class="error-message" id="createAlbumErrorMessage"></div>
         </div>
-        <form id="createAlbumForm" action="./album" method="post">
+        <form id="createAlbumForm" action="./album" method="post" th:if="${userImageList.size()} > 0">
             <div class="error-message" id="createAlbumImagesErrorMessage"></div>
             <div class="input-group">
                 <label for="gallery_title">Album Title</label>
@@ -104,6 +106,7 @@
             </div>
             <button id="createGalleryButton" type="submit">Create Album</button>
         </form>
+        <p th:if="${userImageList.size()} == 0" class="no-images">No images uploaded yet, upload some images to create an album</p>
     </div>
 </div>
 </body>

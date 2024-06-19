@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 @WebServlet(name = "Logout page", value = "/logout")
 public class LogoutPage extends HttpServlet {
@@ -34,4 +35,5 @@ public class LogoutPage extends HttpServlet {
         req.getSession().removeAttribute("user");
         resp.sendRedirect(path);
     }
+
 }

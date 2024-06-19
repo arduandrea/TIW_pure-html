@@ -61,7 +61,6 @@ public class HomePage extends HttpServlet {
         try {
             userAlbums = albumDAO.getAlbumForHome(loggedUser.getId(), true);
             sharedAlbums = albumDAO.getAlbumForHome(loggedUser.getId(), false);
-
         } catch (SQLException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Exception when retrieving albums");
             return;
@@ -80,5 +79,14 @@ public class HomePage extends HttpServlet {
         }
         ctx.setVariable("userImageList", userImageList);
         templateEngine.process(path, ctx, resp.getWriter());
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            ConnectionHandler.closeConnection(connection);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

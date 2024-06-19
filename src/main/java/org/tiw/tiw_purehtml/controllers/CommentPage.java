@@ -15,10 +15,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 @WebServlet(name = "CommentPage", value = "/comment")
 public class CommentPage extends HttpServlet {
-    public CommentPage () {
+    public CommentPage() {
         super();
     }
 
@@ -49,10 +50,24 @@ public class CommentPage extends HttpServlet {
         int imageId;
         try {
             imageId = Integer.parseInt(req.getParameter("imageId"));
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             ctx.setVariable("errorMessage", "Invalid image id");
             templateEngine.process(path, ctx, resp.getWriter());
             return;
+        }
+
+        int albumId;
+        String albumIdString = req.getParameter("albumId");
+        String albumIdParam = "";
+        if (albumIdString != null) {
+            try {
+                albumId = Integer.parseInt(req.getParameter("albumId"));
+            } catch (NumberFormatException e) {
+                ctx.setVariable("errorMessage", "I");
+                templateEngine.process(path, ctx, resp.getWriter());
+                return;
+            }
+            albumIdParam = "&albumId="+albumId;
         }
 
         String comment = req.getParameter("commentText");
@@ -70,6 +85,15 @@ public class CommentPage extends HttpServlet {
             templateEngine.process(path, ctx, resp.getWriter());
             return;
         }
-        resp.sendRedirect(req.getServletContext().getContextPath() + "/image?imageId=" + imageId);
+        resp.sendRedirect(req.getServletContext().getContextPath() + "/image?imageId=" + imageId + albumIdParam);
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            ConnectionHandler.closeConnection(connection);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

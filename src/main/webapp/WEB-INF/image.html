@@ -17,7 +17,7 @@
 </nav>
 <div class="content">
     <div id="imageContainer">
-        <h2 id="imageTitle">Image Title</h2>
+        <h2 id="imageTitle" th:text="${image.title}"></h2>
         <img th:src="${image.base64Image}" th:alt="${image.title}">
         <form action="delete-image" method="post" th:if="${image.authorId == userId}">
             <input class="hidden" type="text" th:value="${image.id}" name="imageId">
@@ -37,7 +37,7 @@
                 <div class="comment-text" th:text="${comment.commentText}"></div>
             </li>
         </ul>
-        <form id="commentForm" th:action="'./comment?imageId='+${image.id}" method="post">
+        <form id="commentForm" th:action="'./comment?imageId='+${image.id}+(${albumId} ? '&albumId='+${albumId} : '')" method="post">
             <div class="input-group">
                 <label for="commentText">Add a Comment</label>
                 <textarea id="commentText" name="commentText" required></textarea>

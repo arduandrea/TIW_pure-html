@@ -14,17 +14,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import static org.tiw.tiw_purehtml.dao.ImageDAO.getPathForImages;
+
 @WebServlet(name = "Delete Image", value = "/delete-image")
-public class DeletePage extends HttpServlet {
+public class DeleteImagePage extends HttpServlet {
 
     private Connection connection = null;
     private TemplateEngine templateEngine = null;
 
-    public DeletePage () {
+    public DeleteImagePage() {
         super();
     }
 
@@ -50,7 +55,7 @@ public class DeletePage extends HttpServlet {
         int imageId;
         try {
             imageId = Integer.parseInt(req.getParameter("imageId"));
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             ctx.setVariable("errorMessage", "ImageId must be a number and not null");
             templateEngine.process(path, ctx, resp.getWriter());
             return;
@@ -87,6 +92,26 @@ public class DeletePage extends HttpServlet {
             return;
         }
 
+        // Retrieve the image file from the filesystem
+        Path imagePath = Paths.get(
+                getPathForImages()).resolve(
+                image.getFileName()
+        );
+        // Delete the image file
+        File imageFile = new File(imagePath.toString());
+        if (!imageFile.delete()) {
+            ctx.setVariable("errorMessage", "Error while deleting the image from the server");
+            templateEngine.process(path, ctx, resp.getWriter());
+        }
         resp.sendRedirect("./home");
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            ConnectionHandler.closeConnection(connection);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

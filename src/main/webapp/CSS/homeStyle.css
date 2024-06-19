@@ -280,3 +280,9 @@ button a {
     max-height: 300px;
     overflow-y: auto;
 }
+
+#galleryContainer .no-images{
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+}

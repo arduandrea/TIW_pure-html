@@ -16,23 +16,24 @@
 </nav>
 <div class="content">
   <div class="album-container">
-    <h2 id="albumTitle" th:text="${albumTitle}"></h2>
+    <h2 id="albumTitle" th:text="${albumPage.title}"></h2>
     <h3 th:if="${emptyAlbum}">The following album is empty</h3>
     <table class="album-table" th:if="!${emptyAlbum}">
       <tr id="currentPageRow">
-        <td th:each="image : ${images}">
-          <a th:href="'./image?imageId='+${image.id}+'&albumId='+${albumId}">
+        <td th:each="image : ${albumPage.imageList}">
+          <a th:href="'./image?imageId='+${image.id}+'&albumId='+${albumPage.id}" th:if="${image} != null">
             <img th:src="${image.base64Image}" th:alt="${image.id}"/>
+            <h5 th:text="${image.title}"></h5>
           </a>
         </td>
       </tr>
     </table>
     <div class="album-buttons" th:if="!${emptyAlbum}">
-      <button class="prev-button" id="previous" th:if="${currentPageNumber} != 0">
-        <a th:href="'./album?albumId='+${albumId}+'&albumPage='+(${currentPageNumber}-1)">Previous</a>
+      <button class="prev-button" id="previous" th:if="${albumPage.currentPage} != 0">
+        <a th:href="'./album?albumId='+${albumPage.id}+'&albumPage='+(${albumPage.currentPage}-1)">Previous</a>
       </button>
-      <button class="next-button" id="next" th:if="${currentPageNumber} +1 < ${numberOfPages}">
-        <a th:href="'./album?albumId='+${albumId}+'&albumPage='+(${currentPageNumber}+1)">Next</a>
+      <button class="next-button" id="next" th:if="${albumPage.currentPage} +1 < ${albumPage.numberOfPages}">
+        <a th:href="'./album?albumId='+${albumPage.id}+'&albumPage='+(${albumPage.currentPage}+1)">Next</a>
       </button>
     </div>
   </div>

@@ -54,8 +54,8 @@ public class ImagePage extends HttpServlet {
         int imageId;
         try {
             imageId = Integer.parseInt(req.getParameter("imageId"));
-        } catch (Exception e) {
-            ctx.setVariable("errorMessage", "ImageId must be a number and not null");
+        } catch (NumberFormatException e) {
+            ctx.setVariable("errorMessage", "ImageId must be a number");
             templateEngine.process(path, ctx, resp.getWriter());
             return;
         }
@@ -147,17 +147,45 @@ public class ImagePage extends HttpServlet {
             return;
         }
 
+
         ImageDAO imageDAO = new ImageDAO(connection);
-        String res;
+        String newImageFileName;
         try {
-            res = imageDAO.createImage(loggedUserId, imageTitle, image);
-        } catch (SQLException | IOException e) {
-            ctx.setVariable("errorMessage", "Error while uploading the image to the server");
+            newImageFileName = imageDAO.createImage(loggedUserId, imageTitle, image);
+        } catch (SQLException e) {
+            ctx.setVariable("errorMessage","Error while uploading the image to the database");
+            templateEngine.process(path, ctx, resp.getWriter());
+            return;
+        } catch (IOException e) {
+            ctx.setVariable("errorMessage","Error while uploading the image to the server");
             templateEngine.process(path, ctx, resp.getWriter());
             return;
         }
 
-        int newImageId = imageDAO.getImageIdByAuthorAndTime(loggedUserId, res);
+
+        int newImageId = -1;
+        try {
+            newImageId = imageDAO.getImageIdByFileName(newImageFileName);
+        } catch (SQLException e) {
+            ctx.setVariable("errorMessage","Error while fetching the image id from the database");
+            templateEngine.process(path, ctx, resp.getWriter());
+            return;
+        }
+
+        if (newImageId == -1) {
+            ctx.setVariable("errorMessage","Error while creating the image");
+            templateEngine.process(path, ctx, resp.getWriter());
+            return;
+        }
         resp.sendRedirect("./image?imageId=" + newImageId);
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            ConnectionHandler.closeConnection(connection);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

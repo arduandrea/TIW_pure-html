@@ -7,7 +7,9 @@ import org.tiw.tiw_purehtml.beans.User;
 import org.tiw.tiw_purehtml.dao.UserDAO;
 import org.tiw.tiw_purehtml.utils.ConnectionHandler;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.UnavailableException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -34,14 +36,19 @@ public class LoginPage extends HttpServlet {
     }
 
     @Override
-    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.sendRedirect("./");
+    }
+
+    @Override
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException  {
         UserDAO userDao = new UserDAO(connection);
 
         ServletContext servletContext = getServletContext();
         final WebContext ctx = new WebContext(req, resp, servletContext, req.getLocale());
 
         User user = null;
-        String path = "/index";
+        String path = "/index.html";
 
 
         String username;
@@ -71,6 +78,7 @@ public class LoginPage extends HttpServlet {
         if (user == null) {
             ctx.setVariable("errorMessage", "Incorrect username or password");
             templateEngine.process(path, ctx, resp.getWriter());
+            return;
         } else {
             req.getSession().setAttribute("user", user);
             ctx.setVariable("errorMessage", "");
